@@ -114,8 +114,9 @@ namespace Tests.SessionTests
         public void GetInvalidSpec()
         {
             var spec = new Specialization();
+            var sched = new Schedule();
 
-            var res = sessionService.GetFreeSessions(spec);
+            var res = sessionService.GetFreeSessions(spec, sched);
 
             Assert.True(res.IsFailure);
             Assert.Equal("Name is empty", res.Message);
@@ -151,10 +152,11 @@ namespace Tests.SessionTests
             dates.Add(new DateTime());
 
 
-            repositoryMock.Setup(repository => repository.GetFreeSessions(It.IsAny<Specialization>())).Returns(() => dates);
+            repositoryMock.Setup(repository => repository.GetFreeSessions(It.IsAny<Specialization>(), It.IsAny<Schedule>())).Returns(() => dates);
 
             var spec = new Specialization(0, "a");
-            var res = sessionService.GetFreeSessions(spec);
+            var sched = new Schedule(0, 0, DateTime.MinValue, DateTime.MinValue);
+            var res = sessionService.GetFreeSessions(spec, sched);
 
             Assert.True(res.Res);
         }

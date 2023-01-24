@@ -19,24 +19,24 @@ namespace Database.Repository
             return true;
         }
 
-        public bool Delete(ulong id)
+        public bool Delete(ulong? id)
         {
-            var doctor = GetItem(id);
+            var doctor = _context.Doctors.FirstOrDefault(d => d.ID == id);
             if (doctor == default)
                 return false;
 
-            _context.Remove(doctor.ToModel());
+            _context.Remove(doctor);
             return true;
         }
 
         public Doctor? FindDoctor(Specialization specialization)
         {
-            return _context.Doctors.FirstOrDefault(d => d.Specialization == specialization.ToModel())?.ToDomain();
+            return _context.Doctors.FirstOrDefault(d => d.SpecializationID == specialization.ID)?.ToDomain();
         }
 
         public IEnumerable<Doctor> FindDoctors(Specialization specialization)
         {
-            return _context.Doctors.Where(d => d.Specialization == specialization.ToModel()).Select(d => d.ToDomain());
+            return _context.Doctors.Where(d => d.SpecializationID == specialization.ID).Select(d => d.ToDomain());
         }
 
         public IEnumerable<Doctor> GetAll()
@@ -44,7 +44,7 @@ namespace Database.Repository
             return _context.Doctors.Select(d => d.ToDomain());
         }
 
-        public Doctor? GetItem(ulong id)
+        public Doctor? GetItem(ulong? id)
         {
             return _context.Doctors.FirstOrDefault(d => d.ID == id)?.ToDomain();
         }

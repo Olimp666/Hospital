@@ -2,7 +2,7 @@
 {
     public class Specialization
     {
-        public ulong ID { get; set; }
+        public ulong? ID { get; set; }
         public string Name { get; set; }
 
         public Specialization()
@@ -11,7 +11,7 @@
             Name = string.Empty;
         }
 
-        public Specialization(ulong id, string name)
+        public Specialization(ulong? id, string name)
         {
             ID = id;
             Name = name;

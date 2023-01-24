@@ -19,13 +19,13 @@ namespace Database.Repository
             return true;
         }
 
-        public bool Delete(ulong id)
+        public bool Delete(ulong? id)
         {
-            var user = GetItem(id);
+            var user = _context.Users.FirstOrDefault(u => u.ID == id);
             if (user == default)
                 return false;
 
-            _context.Users.Remove(user.ToModel());
+            _context.Users.Remove(user);
             return true;
         }
 
@@ -34,7 +34,7 @@ namespace Database.Repository
             return _context.Users.Select(u => u.ToDomain());
         }
 
-        public User? GetItem(ulong id)
+        public User? GetItem(ulong? id)
         {
             var user = _context.Users.FirstOrDefault(u => u.ID == id);
             return user?.ToDomain();

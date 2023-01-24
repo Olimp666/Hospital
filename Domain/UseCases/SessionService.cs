@@ -5,7 +5,8 @@ namespace Domain.UseCases
 {
     public class SessionService
     {
-        private readonly ISessionRepository _db;
+        private ISessionRepository _db;
+        private Dictionary<ulong?, Mutex> _mutex = new Dictionary<ulong?, Mutex>();
 
         public SessionService(ISessionRepository db)
         {
@@ -29,7 +30,21 @@ namespace Domain.UseCases
             if (sessions.Any(a => session.StartTime < a.EndTime && a.StartTime < session.EndTime))
                 return Result.Fail<Session>("Session time already taken");
 
-            return _db.Create(session) ? Result.Success(session) : Result.Fail<Session>("Unable to save session");
+            if (!_mutex.ContainsKey(session.DoctorID))
+            {
+                _mutex.Add(session.DoctorID, new Mutex());
+            }
+            _mutex.First(d => d.Key == session.DoctorID).Value.WaitOne();
+
+            if (_db.Create(session))
+            {
+                _db.Save();
+                _mutex.First(d => d.Key == session.DoctorID).Value.ReleaseMutex();
+                return Result.Success(session);
+            }
+
+            _mutex.First(d => d.Key == session.DoctorID).Value.ReleaseMutex();
+            return Result.Fail<Session>("Unable to save session");
         }
 
         public Result<IEnumerable<Session>> GetExistingSessions(Specialization specialization)
@@ -41,13 +56,16 @@ namespace Domain.UseCases
             return Result.Success(_db.GetExistingSessions(specialization));
         }
 
-        public Result<IEnumerable<DateTime>> GetFreeSessions(Specialization specialization)
+        public Result<IEnumerable<DateTime>> GetFreeSessions(Specialization specialization, Schedule schedule)
         {
             var result = specialization.IsValid();
             if (result.IsFailure)
                 return Result.Fail<IEnumerable<DateTime>>(result.Message);
+            result = schedule.IsValid();
+            if (result.IsFailure)
+                return Result.Fail<IEnumerable<DateTime>>(result.Message);
 
-            return Result.Success(_db.GetFreeSessions(specialization));
+            return Result.Success(_db.GetFreeSessions(specialization, schedule));
         }
     }
 }

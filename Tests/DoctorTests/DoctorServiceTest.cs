@@ -32,8 +32,8 @@ namespace Tests.DoctorTests
         [Fact]
         public void CreateIdError()
         {
-            doctorRepositoryMock.Setup(r => r.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", new Specialization(1, "a")));
-            var doctor = new Doctor(0, "a", new Specialization(1, "a"));
+            doctorRepositoryMock.Setup(r => r.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", 1));
+            var doctor = new Doctor(0, "a", 1);
             var result = doctorService.CreateDoctor(doctor);
 
             Assert.True(result.IsFailure);
@@ -44,7 +44,7 @@ namespace Tests.DoctorTests
         public void CreateCreateError()
         {
             doctorRepositoryMock.Setup(repository => repository.Create(It.IsAny<Doctor>())).Returns(() => false);
-            var doctor = new Doctor(0, "a", new Specialization(1, "a"));
+            var doctor = new Doctor(0, "a", 1);
             var result = doctorService.CreateDoctor(doctor);
 
             Assert.True(result.IsFailure);
@@ -55,7 +55,7 @@ namespace Tests.DoctorTests
         public void CreateValid()
         {
             doctorRepositoryMock.Setup(repository => repository.Create(It.IsAny<Doctor>())).Returns(() => true);
-            var doctor = new Doctor(0, "a", new Specialization(1, "a"));
+            var doctor = new Doctor(0, "a", 1);
             var result = doctorService.CreateDoctor(doctor);
 
             Assert.True(result.Res);
@@ -105,7 +105,7 @@ namespace Tests.DoctorTests
         public void DeleteDeleteError()
         {
             List<Session> apps = new();
-            doctorRepositoryMock.Setup(repository => repository.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", new Specialization(0, "a")));
+            doctorRepositoryMock.Setup(repository => repository.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", 1));
             doctorRepositoryMock.Setup(repository => repository.Delete(It.IsAny<ulong>())).Returns(() => false);
 
             var result = doctorService.DeleteDoctor(0);
@@ -118,7 +118,7 @@ namespace Tests.DoctorTests
         public void DeleteValid()
         {
             List<Session> apps = new();
-            doctorRepositoryMock.Setup(repository => repository.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", new Specialization(0, "a")));
+            doctorRepositoryMock.Setup(repository => repository.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", 1));
             doctorRepositoryMock.Setup(repository => repository.Delete(It.IsAny<ulong>())).Returns(() => true);
 
             var result = doctorService.DeleteDoctor(0);
@@ -131,8 +131,8 @@ namespace Tests.DoctorTests
         {
             List<Doctor> doctors = new()
             {
-                new Doctor(0, "a", new Specialization(0, "a")),
-                new Doctor(1, "as", new Specialization(0, "a"))
+                new Doctor(0, "a", 1),
+                new Doctor(1, "as", 1)
             };
             IEnumerable<Doctor> d = doctors;
             doctorRepositoryMock.Setup(repository => repository.GetAll()).Returns(() => d);
@@ -156,7 +156,7 @@ namespace Tests.DoctorTests
         [Fact]
         public void FindIDValid()
         {
-            doctorRepositoryMock.Setup(repository => repository.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", new Specialization(0, "a")));
+            doctorRepositoryMock.Setup(repository => repository.GetItem(It.IsAny<ulong>())).Returns(() => new Doctor(0, "a", 1));
 
             var result = doctorService.FindDoctor(0);
 
@@ -188,7 +188,7 @@ namespace Tests.DoctorTests
         {
             List<Doctor> list = new()
             {
-                new Doctor(0, "a", new Specialization(0, "a"))
+                new Doctor(0, "a", 1)
             };
             doctorRepositoryMock.Setup(repository => repository.FindDoctors(It.IsAny<Specialization>())).Returns(() => list);
 
