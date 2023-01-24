@@ -1,10 +1,9 @@
 ﻿using Database.Converters;
 using Domain.Models;
 using Domain.Repositories;
-
 namespace Database.Repository
 {
-    internal class SessionsRepository : ISessionRepository
+    public class SessionsRepository : ISessionRepository
     {
         private readonly AppContext _context;
 
@@ -19,13 +18,13 @@ namespace Database.Repository
             return true;
         }
 
-        public bool Delete(ulong id)
+        public bool Delete(ulong? id)
         {
-            var session = GetItem(id);
+            var session = _context.Sessions.FirstOrDefault(a => a.ID == id);
             if (session == default)
                 return false;
 
-            _context.Sessions.Remove(session.ToModel());
+            _context.Sessions.FirstOrDefault(a => a.ID == id);
             return true;
         }
 
@@ -34,24 +33,31 @@ namespace Database.Repository
             return _context.Sessions.Select(a => a.ToDomain());
         }
 
-        public IEnumerable<Session> GetSessions(ulong doctorId)
+        public IEnumerable<Session> GetSessions(ulong? doctorId)
         {
             return _context.Sessions.Where(a => a.DoctorID == doctorId).Select(a => a.ToDomain());
         }
 
         public IEnumerable<Session> GetExistingSessions(Specialization specialization)
         {
-            var docs = _context.Doctors.Where(d => d.Specialization == specialization.ToModel());
+            var docs = _context.Doctors.Where(d => d.SpecializationID == specialization.ID);
             return _context.Sessions.Where(a => docs.Any(d => d.ID == a.DoctorID)).Select(a => a.ToDomain());
         }
 
-        public IEnumerable<DateTime> GetFreeSessions(Specialization specialization)
+        public IEnumerable<DateTime> GetFreeSessions(Specialization specialization, Schedule schedule)
         {
-            var docs = _context.Doctors.Where(d => d.Specialization == specialization.ToModel());
-            return _context.Sessions.Where(a => a.PatientID == 1 && docs.Any(d => d.ID == a.DoctorID)).Select(a => a.StartTime);
+            var docs = _context.Doctors.Where(d => d.SpecializationID == specialization.ID && d.ID == schedule.DoctorID);
+            var existing = _context.Sessions.Where(a => docs.Any(d => d.ID == a.DoctorID)).Select(a => a.StartTime);
+            List<DateTime> free = new List<DateTime>();
+            for (DateTime dt = schedule.StartTime; dt < schedule.EndTime; dt.AddMinutes(30))
+            {
+                if (existing.All(a => a != dt))
+                    free.Append(dt);
+            }
+            return free;
         }
 
-        public Session? GetItem(ulong id)
+        public Session? GetItem(ulong? id)
         {
             return _context.Sessions.FirstOrDefault(a => a.ID == id)?.ToDomain();
         }

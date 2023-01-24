@@ -8,7 +8,7 @@
             {
                 ID = model.ID,
                 FullName = model.FullName,
-                Specialization = model.Specialization.ToModel()
+                SpecializationID = model.SpecializationID,
             };
         }
 
@@ -18,7 +18,7 @@
             {
                 ID = model.ID,
                 FullName = model.FullName,
-                Specialization = model.Specialization.ToDomain()
+                SpecializationID = model.SpecializationID,
             };
         }
     }

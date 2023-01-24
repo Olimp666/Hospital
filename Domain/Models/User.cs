@@ -2,7 +2,7 @@
 {
     public class User
     {
-        public ulong ID { get; set; }
+        public ulong? ID { get; set; }
         public string PhoneNumber { get; set; }
         public string FullName { get; set; }
         public Role Role { get; set; }
@@ -19,7 +19,7 @@
             Password = string.Empty;
         }
 
-        public User(ulong id, string phoneNumber, string fullName, Role role, string userName, string passWord)
+        public User(ulong? id, string phoneNumber, string fullName, Role role, string userName, string passWord)
         {
             ID = id;
             PhoneNumber = phoneNumber;

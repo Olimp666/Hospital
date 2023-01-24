@@ -21,7 +21,12 @@ namespace Domain.UseCases
             if (_db.UserExists(user.UserName))
                 return Result.Fail<User>("Username already exists");
 
-            return _db.Create(user) ? Result.Success(user) : Result.Fail<User>("User creating failure");
+            if (_db.Create(user))
+            {
+                _db.Save();
+                return Result.Success(user);
+            }
+            return Result.Fail<User>("User creating failure");
         }
 
         public Result<User> GetUserByLogin(string login)
@@ -40,6 +45,10 @@ namespace Domain.UseCases
                 return Result.Fail<bool>("Login is empty");
 
             return Result.Success(_db.UserExists(login));
+        }
+        public Result<IEnumerable<User>> GetAll()
+        {
+            return Result.Success(_db.GetAll());
         }
     }
 }

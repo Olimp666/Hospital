@@ -19,13 +19,13 @@ namespace Database.Repository
             return true;
         }
 
-        public bool Delete(ulong id)
+        public bool Delete(ulong? id)
         {
-            var sched = GetItem(id);
+            var sched = _context.Schedules.FirstOrDefault(s => s.ID == id);
             if (sched == default)
                 return false;
 
-            _context.Schedules.Remove(sched.ToModel());
+            _context.Schedules.Remove(sched);
             return true;
         }
 
@@ -34,7 +34,7 @@ namespace Database.Repository
             return _context.Schedules.Select(s => s.ToDomain());
         }
 
-        public Schedule? GetItem(ulong id)
+        public Schedule? GetItem(ulong? id)
         {
             return _context.Schedules.FirstOrDefault(s => s.ID == id)?.ToDomain();
         }

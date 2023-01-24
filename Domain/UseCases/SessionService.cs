@@ -5,7 +5,7 @@ namespace Domain.UseCases
 {
     public class SessionService
     {
-        private readonly ISessionRepository _db;
+        private ISessionRepository _db;
 
         public SessionService(ISessionRepository db)
         {
@@ -29,7 +29,21 @@ namespace Domain.UseCases
             if (sessions.Any(a => session.StartTime < a.EndTime && a.StartTime < session.EndTime))
                 return Result.Fail<Session>("Session time already taken");
 
-            return _db.Create(session) ? Result.Success(session) : Result.Fail<Session>("Unable to save session");
+            if (!SessionMutex.containsKey(session.DoctorID))
+            {
+                SessionMutex.addKey(session.DoctorID);
+            }
+            SessionMutex.wait(session.DoctorID);
+
+            if (_db.Create(session))
+            {
+                _db.Save();
+                SessionMutex.releaseMutex(session.DoctorID);
+                return Result.Success(session);
+            }
+
+            SessionMutex.releaseMutex(session.DoctorID);
+            return Result.Fail<Session>("Unable to save session");
         }
 
         public Result<IEnumerable<Session>> GetExistingSessions(Specialization specialization)
@@ -41,13 +55,16 @@ namespace Domain.UseCases
             return Result.Success(_db.GetExistingSessions(specialization));
         }
 
-        public Result<IEnumerable<DateTime>> GetFreeSessions(Specialization specialization)
+        public Result<IEnumerable<DateTime>> GetFreeSessions(Specialization specialization, Schedule schedule)
         {
             var result = specialization.IsValid();
             if (result.IsFailure)
                 return Result.Fail<IEnumerable<DateTime>>(result.Message);
+            result = schedule.IsValid();
+            if (result.IsFailure)
+                return Result.Fail<IEnumerable<DateTime>>(result.Message);
 
-            return Result.Success(_db.GetFreeSessions(specialization));
+            return Result.Success(_db.GetFreeSessions(specialization, schedule));
         }
     }
 }

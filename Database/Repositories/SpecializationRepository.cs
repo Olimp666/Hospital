@@ -4,7 +4,7 @@ using Domain.Repositories;
 
 namespace Database.Repository
 {
-    public class SpecializationRepository : IRepository<Specialization>
+    public class SpecializationRepository : ISpecializationRepository
     {
         private readonly AppContext _context;
 
@@ -19,13 +19,13 @@ namespace Database.Repository
             return true;
         }
 
-        public bool Delete(ulong id)
+        public bool Delete(ulong? id)
         {
-            var spec = GetItem(id);
+            var spec = _context.Specializations.FirstOrDefault(s => s.ID == id);
             if (spec == default)
                 return false;
 
-            _context.Specializations.Remove(spec.ToModel());
+            _context.Specializations.Remove(spec);
             return true;
         }
 
@@ -34,7 +34,7 @@ namespace Database.Repository
             return _context.Specializations.Select(s => s.ToDomain());
         }
 
-        public Specialization? GetItem(ulong id)
+        public Specialization? GetItem(ulong? id)
         {
             return _context.Specializations.FirstOrDefault(s => s.ID == id)?.ToDomain();
         }
@@ -48,6 +48,10 @@ namespace Database.Repository
         {
             _context.Specializations.Update(item.ToModel());
             return true;
+        }
+        public Specialization? GetByName(string name)
+        {
+            return _context.Specializations.FirstOrDefault(s => s.Name == name)?.ToDomain();
         }
     }
 }

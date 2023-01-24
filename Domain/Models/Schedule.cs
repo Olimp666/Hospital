@@ -2,8 +2,8 @@
 {
     public class Schedule
     {
-        public ulong ID;
-        public ulong DoctorID { get; set; }
+        public ulong? ID;
+        public ulong? DoctorID { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
 
@@ -15,7 +15,7 @@
             EndTime = DateTime.MinValue;
         }
 
-        public Schedule(ulong id, ulong doctorId, DateTime startTime, DateTime endTime)
+        public Schedule(ulong? id, ulong? doctorId, DateTime startTime, DateTime endTime)
         {
             ID = id;
             DoctorID = doctorId;

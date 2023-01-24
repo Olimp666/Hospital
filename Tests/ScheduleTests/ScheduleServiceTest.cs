@@ -37,7 +37,7 @@ namespace Tests.ScheduleTests
             IEnumerable<Schedule> s = scheds;
             repositoryMock.Setup(rep => rep.GetSchedule(It.IsAny<Doctor>())).Returns(() => s);
 
-            var doctor = new Doctor(0, "a", new Specialization(0, "a"));
+            var doctor = new Doctor(0, "a", 1);
             var result = scheduleService.GetSchedule(doctor);
 
             Assert.True(result.Res);

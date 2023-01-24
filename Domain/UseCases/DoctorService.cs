@@ -24,10 +24,15 @@ namespace Domain.UseCases
             if (result1.Res)
                 return Result.Fail<Doctor>("Doctor alredy exists");
 
-            return _db.Create(doctor) ? Result.Success(doctor) : Result.Fail<Doctor>("Unable to create doctor");
+            if (_db.Create(doctor))
+            {
+                _db.Save();
+                return Result.Success(doctor);
+            }
+            return Result.Fail<Doctor>("Unable to create doctor");
         }
 
-        public Result<Doctor> DeleteDoctor(ulong id)
+        public Result<Doctor> DeleteDoctor(ulong? id)
         {
             if (_sesssiondb.GetSessions(id).Any())
                 return Result.Fail<Doctor>("Unable to delete doctor: Doctor has sessions");
@@ -36,7 +41,12 @@ namespace Domain.UseCases
             if (result.IsFailure)
                 return Result.Fail<Doctor>(result.Message);
 
-            return _db.Delete(id) ? result : Result.Fail<Doctor>("Unable to delete doctor");
+            if (_db.Delete(id))
+            {
+                _db.Save();
+                return result;
+            }
+            return Result.Fail<Doctor>("Unable to delete doctor");
         }
 
         public Result<IEnumerable<Doctor>> GetAllDoctors()
@@ -44,7 +54,7 @@ namespace Domain.UseCases
             return Result.Success(_db.GetAll());
         }
 
-        public Result<Doctor> FindDoctor(ulong id)
+        public Result<Doctor> FindDoctor(ulong? id)
         {
             if (id < 0)
                 return Result.Fail<Doctor>("Invalid id");

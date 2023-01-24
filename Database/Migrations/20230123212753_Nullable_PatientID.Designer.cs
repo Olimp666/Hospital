@@ -3,6 +3,7 @@ using System;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppContext))]
-    partial class AppContextModelSnapshot : ModelSnapshot
+    [Migration("20230123212753_Nullable_PatientID")]
+    partial class NullablePatientID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,10 +35,12 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("SpecializationID")
+                    b.Property<decimal>("SpecializationID")
                         .HasColumnType("numeric(20,0)");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("SpecializationID");
 
                     b.ToTable("Doctors");
                 });
@@ -46,7 +51,7 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(20,0)");
 
-                    b.Property<decimal?>("DoctorID")
+                    b.Property<decimal>("DoctorID")
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime>("EndTime")
@@ -66,13 +71,13 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(20,0)");
 
-                    b.Property<decimal?>("DoctorID")
+                    b.Property<decimal>("DoctorID")
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal?>("PatientID")
+                    b.Property<decimal>("PatientID")
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime>("StartTime")
@@ -128,6 +133,17 @@ namespace Database.Migrations
                     b.HasIndex("UserName");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Database.Models.Doctor", b =>
+                {
+                    b.HasOne("Database.Models.Specialization", "Specialization")
+                        .WithMany()
+                        .HasForeignKey("SpecializationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Specialization");
                 });
 #pragma warning restore 612, 618
         }
