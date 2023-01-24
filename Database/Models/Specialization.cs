@@ -1,8 +1,10 @@
-﻿namespace Domain
+﻿namespace Database.Models
 {
-    internal class Specializaton
+    public class Specialization
     {
         public ulong ID { get; set; }
         public string Name { get; set; }
     }
+
+
 }
