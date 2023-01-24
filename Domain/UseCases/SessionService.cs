@@ -6,7 +6,6 @@ namespace Domain.UseCases
     public class SessionService
     {
         private ISessionRepository _db;
-        private Dictionary<ulong?, Mutex> _mutex = new Dictionary<ulong?, Mutex>();
 
         public SessionService(ISessionRepository db)
         {
@@ -30,20 +29,20 @@ namespace Domain.UseCases
             if (sessions.Any(a => session.StartTime < a.EndTime && a.StartTime < session.EndTime))
                 return Result.Fail<Session>("Session time already taken");
 
-            if (!_mutex.ContainsKey(session.DoctorID))
+            if (!SessionMutex.containsKey(session.DoctorID))
             {
-                _mutex.Add(session.DoctorID, new Mutex());
+                SessionMutex.addKey(session.DoctorID);
             }
-            _mutex.First(d => d.Key == session.DoctorID).Value.WaitOne();
+            SessionMutex.wait(session.DoctorID);
 
             if (_db.Create(session))
             {
                 _db.Save();
-                _mutex.First(d => d.Key == session.DoctorID).Value.ReleaseMutex();
+                SessionMutex.releaseMutex(session.DoctorID);
                 return Result.Success(session);
             }
 
-            _mutex.First(d => d.Key == session.DoctorID).Value.ReleaseMutex();
+            SessionMutex.releaseMutex(session.DoctorID);
             return Result.Fail<Session>("Unable to save session");
         }
 
